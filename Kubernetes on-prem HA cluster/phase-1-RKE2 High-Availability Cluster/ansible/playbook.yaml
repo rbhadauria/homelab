@@ -1,0 +1,205 @@
+---
+- name: update all servers
+  hosts: all
+
+  tasks:
+    - name: update packages
+      ansible.builtin.shell: 'apt update -y'
+    - name: update hostnames
+      ansible.builtin.hostname:
+        name: '{{ inventory_hostname }}'
+
+- name: install HAProxy in k8s-utils
+  hosts: utils
+  tasks:
+    - name: install software-properties-common
+      ansible.builtin.shell: 'apt-get install --no-install-recommends software-properties-common -y'
+    - name: add haproxy repo
+      ansible.builtin.apt_repository:
+        repo: 'ppa:vbernat/haproxy-3.2'
+    - name: install haproxy
+      ansible.builtin.apt:
+        name: haproxy=3.2.*
+    - name: configure haproxy
+      ansible.builtin.template:
+        src: ./templates/haproxy-cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+    - name: restart haproxy
+      ansible.builtin.service:
+        name: haproxy
+        state: restarted
+
+- name: Install and configure RKE2 controlplanes
+  hosts: controlplanes
+  become: true
+  serial: 1 # process one node at a time to share token safely
+
+  vars:
+    rke2_config_path: /etc/rancher/rke2/config.yaml
+    rke2_token_file: /var/lib/rancher/rke2/server/token
+    lb_host: "{{ hostvars[groups['utils'][0]].ansible_host }}"
+    tls_sans:
+      - k8s-util
+      - '{{ lb_host }}'
+
+  tasks:
+    - name: Install RKE2
+      ansible.builtin.shell: curl -sfL https://get.rke2.io | sh -
+      args:
+        creates: /usr/local/bin/rke2
+
+    - name: Enable RKE2 service
+      ansible.builtin.service:
+        name: rke2-server.service
+        enabled: true
+
+    # Bootstrap node (first controlplane)
+    - name: create config dir
+      ansible.builtin.shell: mkdir -p /etc/rancher/rke2
+
+    - name: Set RKE2 config for first controlplane
+      ansible.builtin.copy:
+        dest: '{{ rke2_config_path }}'
+        content: |
+          tls-san:
+          {% for san in tls_sans %}
+            - {{ san }}
+          {% endfor %}
+        mode: '0644'
+      when: inventory_hostname == groups['controlplanes'][0]
+
+    - name: Start RKE2 on first controlplane
+      ansible.builtin.service:
+        name: rke2-server
+        state: started
+      when: inventory_hostname == groups['controlplanes'][0]
+
+    - name: Wait for RKE2 API to be ready on first controlplane
+      ansible.builtin.wait_for:
+        port: 9345
+        host: '{{ ansible_host }}'
+        timeout: 120
+      when: inventory_hostname == groups['controlplanes'][0]
+
+    - name: Get node join token from first controlplane
+      ansible.builtin.slurp:
+        src: '{{ rke2_token_file }}'
+      register: join_token_raw
+      when: inventory_hostname == groups['controlplanes'][0]
+
+    - name: Save join token for use by next nodes
+      ansible.builtin.set_fact:
+        node_join_token: '{{ join_token_raw.content | b64decode | trim }}'
+      when: inventory_hostname == groups['controlplanes'][0]
+
+    # Joining other controlplanes
+    - name: Wait until join token is available from first node
+      ansible.builtin.wait_for:
+        timeout: 10
+      when: node_join_token is not defined
+
+    - name: Set RKE2 config for joining controlplanes
+      ansible.builtin.copy:
+        dest: '{{ rke2_config_path }}'
+        content: |
+          server: https://{{ lb_host }}:9345
+          token: {{ hostvars[groups['controlplanes'][0]].node_join_token }}
+          tls-san:
+          {% for san in tls_sans %}
+            - {{ san }}
+          {% endfor %}
+        mode: '0644'
+      when: inventory_hostname != groups['controlplanes'][0]
+
+    - name: Start RKE2 on joining controlplanes
+      ansible.builtin.service:
+        name: rke2-server
+        state: started
+      when: inventory_hostname != groups['controlplanes'][0]
+
+    - name: Wait for API on joining controlplane
+      ansible.builtin.wait_for:
+        port: 9345
+        host: '{{ ansible_host }}'
+        timeout: 120
+      when: inventory_hostname != groups['controlplanes'][0]
+
+- name: Install and configure RKE2 in worker nodes
+  hosts: workers
+  vars:
+    rke2_config_path: /etc/rancher/rke2/config.yaml
+    rke2_token_file: /var/lib/rancher/rke2/server/node-token
+    lb_host: "{{ hostvars[groups['utils'][0]].ansible_host }}"
+    controlplane_host: "{{ groups['controlplanes'][0] }}"
+
+  tasks:
+    - name: get node joining token from controlplane
+      delegate_to: '{{ controlplane_host }}'
+      ansible.builtin.slurp:
+        src: '{{ rke2_token_file }}'
+      register: raw_worker_joining_token
+      run_once: true
+
+    - name: set worker node joining token
+      ansible.builtin.set_fact:
+        worker_joining_token: '{{ raw_worker_joining_token.content | b64decode | trim }}'
+      when: worker_joining_token is not defined
+
+    - name: install RKE2 in worker mode
+      ansible.builtin.shell: curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE="agent" sh -
+      args:
+        creates: /usr/local/bin/rke2
+
+    - name: enable rke2-agent service
+      ansible.builtin.service:
+        name: rke2-agent.service
+        enabled: true
+    - name: create config dir
+      ansible.builtin.shell: mkdir -p /etc/rancher/rke2
+
+    - name: create config file
+      ansible.builtin.copy:
+        dest: '{{ rke2_config_path }}'
+        content: |
+          server: https://{{ lb_host }}:9345
+          token: {{ worker_joining_token }}
+        mode: '0644'
+
+    - name: start rke2-agent service
+      ansible.builtin.service:
+        name: rke2-agent
+        state: started
+
+    - name: wait for node to register in cluster
+      ansible.builtin.wait_for:
+        port: 10250
+        host: '{{ ansible_host }}'
+        timeout: 120
+
+- name: Download kubeconfig from first controlplane
+  hosts: localhost
+  gather_facts: false
+  vars:
+    controlplane_host: "{{ groups['controlplanes'][0] }}"
+    kubeconfig_remote_path: /etc/rancher/rke2/rke2.yaml
+    kubeconfig_local_path: ./rke2.yaml
+    lb_host: "{{ hostvars[groups['utils'][0]].ansible_host }}" # load balancer
+  tasks:
+    - name: Fetch kubeconfig from controlplane
+      ansible.builtin.fetch:
+        src: '{{ kubeconfig_remote_path }}'
+        dest: '{{ kubeconfig_local_path }}'
+        flat: yes
+      delegate_to: '{{ controlplane_host }}'
+      become: true
+
+    - name: Replace server address with load balancer
+      ansible.builtin.replace:
+        path: '{{ kubeconfig_local_path }}'
+        regexp: 'server: https://127\.0\.0\.1:6443'
+        replace: 'server: https://{{ lb_host }}:6443'
+
+    - name: Fix kubeconfig permissions
+      ansible.builtin.file:
+        path: '{{ kubeconfig_local_path }}'
+        mode: '0600'

@@ -45,4 +45,10 @@ terraform.rc
 
 
 # General Notes
-notes.md 
+notes.md
+
+# SSH Keys
+**/*id_rsa*
+
+# password files
+**/*password_file*

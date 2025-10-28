@@ -1,0 +1,24 @@
+defaults
+  mode tcp
+  timeout client 10s
+  timeout connect 5s
+  timeout server 10s 
+  timeout http-request 10s
+
+frontend k8s-frontend
+  bind *:9345
+  default_backend cp-nodes
+
+frontend k8s-api-server
+  bind *:6443
+  default_backend cp-api-servers
+
+backend cp-nodes
+{% for host in groups['controlplanes'] %}
+  server {{ host }} {{ hostvars[host]['ansible_host'] }}:9345 check
+{% endfor %}
+
+backend cp-api-servers
+{% for host in groups['controlplanes'] %}
+  server {{ host }} {{ hostvars[host]['ansible_host'] }}:6443 check
+{% endfor %}
