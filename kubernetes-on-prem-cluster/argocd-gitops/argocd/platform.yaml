@@ -10,6 +10,9 @@ spec:
       server: https://kubernetes.default.svc
   sourceRepos:
     - '*'
+  clusterResourceWhitelist:
+    - group: '*' # allow all cluster-scoped resources
+      kind: '*' # all kinds
 
 ---
 apiVersion: argoproj.io/v1alpha1
