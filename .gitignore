@@ -52,3 +52,7 @@ notes.md
 
 # password files
 **/*password_file*
+
+**/rke2.yaml
+**/not-now
+**/.DS_Store

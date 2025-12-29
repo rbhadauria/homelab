@@ -13,7 +13,7 @@ resource "tls_private_key" "ubuntu_vm_key" {
 
 resource "proxmox_virtual_environment_file" "cloud_config" {
   content_type = "snippets"
-  datastore_id = "shared-nfs"
+  datastore_id = "omv-nfs"
   node_name    = data.proxmox_virtual_environment_node.pve-large.node_name
 
   source_raw {
@@ -65,8 +65,19 @@ resource "proxmox_virtual_environment_vm" "VMs" {
     datastore_id = "local-lvm"
     import_from  = proxmox_virtual_environment_download_file.ubuntu.id
     interface    = "scsi0"
-    size         = 20
+    size         = each.value.disk_size
     ssd          = "true"
+  }
+
+  dynamic "disk" {
+    for_each = lookup(each.value, "disk_path", "") != "" ? [each.value] : []
+    content {
+      datastore_id      = ""
+      path_in_datastore = each.value.disk_path
+      interface         = "scsi1"
+      file_format       = "raw"
+      backup            = false
+    }
   }
   initialization {
     ip_config {

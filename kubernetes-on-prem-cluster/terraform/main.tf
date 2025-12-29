@@ -26,7 +26,7 @@ data "proxmox_virtual_environment_node" "pve-small" {
 
 resource "proxmox_virtual_environment_download_file" "ubuntu" {
   content_type = "import"
-  datastore_id = "shared-nfs"
+  datastore_id = "omv-nfs"
   node_name    = data.proxmox_virtual_environment_node.pve-large.node_name
   file_name    = "ubuntu-24.04-amd64.qcow2"
   url          = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"

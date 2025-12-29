@@ -20,5 +20,7 @@ variable "vm_details" {
     node_name = string
     cpu       = number
     ram       = number
+    disk_path = string
+    disk_size = string
   }))
 }

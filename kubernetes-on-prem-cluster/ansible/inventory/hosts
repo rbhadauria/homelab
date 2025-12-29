@@ -32,16 +32,16 @@
 
 [controlplanes]
 k8s-cp1 ansible_host=192.168.1.90
-k8s-cp2 ansible_host=192.168.1.91
-k8s-cp3 ansible_host=192.168.1.92
+#k8s-cp2 ansible_host=192.168.1.91
+#k8s-cp3 ansible_host=192.168.1.92
 
 [workers]
-k8s-w-1 ansible_host=192.168.1.93
-k8s-w-2 ansible_host=192.168.1.94
-k8s-w-3 ansible_host=192.168.1.95
+k8s-w-1 ansible_host=192.168.1.91
+k8s-w-2 ansible_host=192.168.1.92
+k8s-w-3 ansible_host=192.168.1.93
 
 [utils]
-k8s-util ansible_host=192.168.1.96
+k8s-util ansible_host=192.168.1.94
 
 [all:vars]
 ansible_user=ubuntu

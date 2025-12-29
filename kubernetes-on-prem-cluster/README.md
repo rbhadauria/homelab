@@ -34,3 +34,14 @@ wait
 3.  **Join Control Plane Nodes:** On `k8s-cp-2` and `k8s-cp-3`, create a similar `config.yaml` and start RKE2. They will register via the HAProxy endpoint and form an HA `etcd` cluster.
 4.  **Join Worker Nodes:** Get the registration token from a server node and start RKE2 on the worker nodes (`k8s-w-1`, `k8s-w-2`, `k8s-w-3`).
 5.  **Verification:** Test HA by powering off a control plane node and a physical host, ensuring cluster access and application uptime.
+
+### Phase 2: On-Premise CI/CD & Storage Foundations
+
+**Goal:** Deploy the core infrastructure for self-hosted CI/CD and storage.
+**Skills:** Harbor, MinIO, Rook-Ceph.
+
+**Project:**
+
+1.  **Distributed Storage (Rook-Ceph):** Deploy the Rook-Ceph operator to create a replicated storage layer using the disks on your worker nodes.
+2.  **S3 Object Storage (MinIO):** Deploy a standalone, HA MinIO cluster inside Kubernetes. Use a `StatefulSet` with `PersistentVolumeClaims` pointing to your Rook-Ceph `StorageClass`.
+3.  **Private Registry (Harbor):** Deploy Harbor into Kubernetes. Configure it to use your in-cluster MinIO deployment for its backend storage.

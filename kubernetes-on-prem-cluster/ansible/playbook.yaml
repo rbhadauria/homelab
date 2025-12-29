@@ -203,3 +203,33 @@
       ansible.builtin.file:
         path: '{{ kubeconfig_local_path }}'
         mode: '0600'
+
+- name: Install ArgoCD in cluster
+  hosts: localhost
+  gather_facts: false
+  vars:
+    kubeconfig_local_path: ./rke2.yaml
+  tasks:
+    - name: Ensure kubeconfig exists
+      ansible.builtin.stat:
+        path: '{{ kubeconfig_local_path }}'
+      register: kubeconfig_stat
+
+    - name: Fail if kubeconfig is missing
+      ansible.builtin.fail:
+        msg: "Kubeconfig {{ kubeconfig_local_path }} not found. Run previous plays first."
+      when: not kubeconfig_stat.stat.exists
+
+    - name: Install Argo CD (apply official manifest)
+      ansible.builtin.command:
+        cmd: kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+      environment:
+        KUBECONFIG: '{{ kubeconfig_local_path }}'
+      args:
+        warn: false
+
+    - name: Wait for ArgoCD server deployment to become available
+      ansible.builtin.command:
+        cmd: kubectl rollout status deployment/argocd-server -n argocd --timeout=120s
+      environment:
+        KUBECONFIG: '{{ kubeconfig_local_path }}'
