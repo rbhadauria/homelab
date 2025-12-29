@@ -22,7 +22,7 @@ spec:
   source:
     repoURL: https://github.com/rbhadauria/homelab
     targetRevision: main
-    path: kubernetes-on-prem-cluster/argocd-gitops/argocd/platform
+    path: kubernetes-on-prem-cluster/argocd-gitops/platform
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
