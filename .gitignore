@@ -56,3 +56,4 @@ notes.md
 **/rke2.yaml
 **/not-now
 **/.DS_Store
+**/*secret*.yaml
