@@ -15,4 +15,5 @@ kind: L2Advertisement
 metadata:
   name: l2
   namespace: metallb
-  argocd.argoproj.io/sync-wave: '7'
+  annotations:
+    argocd.argoproj.io/sync-wave: '7'
