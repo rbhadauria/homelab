@@ -17,3 +17,6 @@ metadata:
   namespace: metallb
   annotations:
     argocd.argoproj.io/sync-wave: '7'
+spec:
+  ipAddressPools:
+    - default-pool
