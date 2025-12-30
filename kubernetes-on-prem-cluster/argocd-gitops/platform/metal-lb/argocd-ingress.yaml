@@ -10,6 +10,7 @@ metadata:
     # then you need to force the nginx ingress to connect to the backend using HTTPS.
     #
     nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+    argocd.argoproj.io/snc-wave: '9'
 spec:
   ingressClassName: nginx
   rules:
