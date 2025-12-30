@@ -4,7 +4,7 @@ metadata:
   name: default-pool
   namespace: metallb
   annotations:
-    argocd.argoproj.io/sync-wave: '1'
+    argocd.argoproj.io/sync-wave: '6'
 spec:
   addresses:
     - 192.168.1.240-192.168.1.250
@@ -15,3 +15,4 @@ kind: L2Advertisement
 metadata:
   name: l2
   namespace: metallb
+  argocd.argoproj.io/sync-wave: '7'

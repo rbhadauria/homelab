@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: argocd
     cert-manager.io/cluster-issuer: 'rlba-issuer'
-    argocd.argoproj.io/sync-wave: '3'
+    argocd.argoproj.io/sync-wave: '9'
 spec:
   ingressClassName: nginx
   rules:

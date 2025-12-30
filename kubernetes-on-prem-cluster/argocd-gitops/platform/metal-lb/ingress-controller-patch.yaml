@@ -4,6 +4,6 @@ metadata:
   name: rke2-ingress-nginx-controller-admission
   namespace: kube-system
   annotations:
-    argocd.argoproj.io/sync-wave: '2'
+    argocd.argoproj.io/sync-wave: '8'
 spec:
   type: LoadBalancer
