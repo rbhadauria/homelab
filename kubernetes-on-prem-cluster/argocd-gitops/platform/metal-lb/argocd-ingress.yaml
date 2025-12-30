@@ -3,27 +3,25 @@ kind: Ingress
 metadata:
   name: argocd-ingress
   namespace: argocd
-  labels:
-    app.kubernetes.io/name: argocd
   annotations:
-    cert-manager.io/cluster-issuer: 'rlba-issuer'
+    cert-manager.io/cluster-issuer: rlba-issuer
     argocd.argoproj.io/sync-wave: '9'
-    nginx.ingress.kubernetes.io/rewrite-target: '/'
+    nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
     nginx.ingress.kubernetes.io/ssl-redirect: 'true'
 spec:
   ingressClassName: nginx
-  rules:
-    - host: argocd.rlba.in
-      http:
-        paths:
-          - pathType: Prefix
-            path: '/'
-            backend:
-              service:
-                name: argocd-server
-                port:
-                  number: 80
   tls:
     - hosts:
         - argocd.rlba.in
       secretName: argo-tls-cert
+  rules:
+    - host: argocd.rlba.in
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 443
