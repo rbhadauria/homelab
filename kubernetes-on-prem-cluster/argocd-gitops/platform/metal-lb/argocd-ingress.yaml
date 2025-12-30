@@ -5,6 +5,7 @@ metadata:
   namespace: argocd
   labels:
     app.kubernetes.io/name: argocd
+  annotations:
     cert-manager.io/cluster-issuer: 'rlba-issuer'
     argocd.argoproj.io/sync-wave: '9'
     nginx.ingress.kubernetes.io/rewrite-target: '/'
