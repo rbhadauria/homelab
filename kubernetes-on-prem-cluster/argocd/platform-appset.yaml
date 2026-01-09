@@ -19,11 +19,19 @@ spec:
     spec:
       project: 'default'
       source:
+        {{- if eq .name "cert-manager" }}
+        chart: cert-manager
+        repoURL: https://charts.jetstack.io
+        targetRevision: '{{version}}''
+        helm:
+          releaseName: cert-manager
+          values: |
+            installCRDs: true
+        {{- else }}
         repoURL: https://github.com/rbhadauria/homelab.git
         targetRevision: HEAD
-        path: 'kubernetes-on-prem-cluster/apps/platform/{{name}}' # Path to the Kustomize directory for the component
-        kustomize:
-          namespace: '{{namespace}}'
+        path: kubernetes-on-prem-cluster/apps/platform/{{name}}
+        {{- end }}
 
       destination:
         server: 'https://kubernetes.default.svc'
