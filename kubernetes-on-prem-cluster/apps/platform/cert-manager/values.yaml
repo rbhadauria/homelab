@@ -1,1 +1,15 @@
 installCRDs: true
+
+# Configure all components to use cert-manager namespace for leader election
+# instead of kube-system (which requires additional RBAC permissions)
+controller:
+  leaderElection:
+    namespace: cert-manager
+
+cainjector:
+  leaderElection:
+    namespace: cert-manager
+
+webhook:
+  leaderElection:
+    namespace: cert-manager
