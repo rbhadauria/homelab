@@ -9,7 +9,8 @@ helmCharts:
     repo: https://charts.jetstack.io
     version: v1.19.2
     releaseName: cert-manager
-    includeCRDs: true
+    values:
+      installCRDs: true
 
 resources:
   - sealed-cloudflare-secret.yaml
