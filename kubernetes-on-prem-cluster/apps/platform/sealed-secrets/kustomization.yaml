@@ -9,3 +9,4 @@ helmCharts:
     repo: https://bitnami-labs.github.io/sealed-secrets
     version: '2.18.0' # Use a specific, recent version
     releaseName: sealed-secrets
+    includeCRDs: true
