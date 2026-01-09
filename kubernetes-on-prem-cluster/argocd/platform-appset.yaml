@@ -22,7 +22,9 @@ spec:
         repoURL: https://github.com/rbhadauria/homelab.git
         targetRevision: HEAD
         path: 'kubernetes-on-prem-cluster/apps/platform/{{name}}' # Path to the Kustomize directory for the component
-        kustomize: {}
+        kustomize:
+          namespace: '{{namespace}}'
+
       destination:
         server: 'https://kubernetes.default.svc'
         namespace: '{{namespace}}'

@@ -1,3 +1,1 @@
 installCRDs: true
-leaderElection:
-  namespace: cert-manager
