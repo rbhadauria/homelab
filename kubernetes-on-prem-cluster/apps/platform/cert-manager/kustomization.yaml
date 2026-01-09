@@ -14,3 +14,4 @@ helmCharts:
 resources:
   - sealed-cloudflare-secret.yaml
   - cluster-issuer.yaml
+  - https://github.com/cert-manager/cert-manager/releases/download/v1.19.2/cert-manager.crds.yaml
