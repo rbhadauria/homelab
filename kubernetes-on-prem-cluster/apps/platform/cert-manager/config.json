@@ -1,6 +1,0 @@
-{
-  "name": "cert-manager",
-  "namespace": "cert-manager",
-  "sync_wave": "10",
-  "version": "1.19.2"
-}

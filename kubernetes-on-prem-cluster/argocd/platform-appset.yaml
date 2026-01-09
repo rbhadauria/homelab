@@ -1,45 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
+kind: Application
 metadata:
-  name: platform-appset
+  name: app-of-apps
   namespace: argocd
 spec:
-  generators:
-    - git:
-        repoURL: https://github.com/rbhadauria/homelab.git
-        revision: HEAD
-        files:
-          - path: 'kubernetes-on-prem-cluster/apps/platform/**/config.json'
-  template:
-    metadata:
-      name: '{{name}}'
-      namespace: 'argocd'
-      annotations:
-        argocd.argoproj.io/sync-wave: '{{sync_wave}}'
-    spec:
-      project: 'default'
-      source:
-        {{- if eq .name "cert-manager" }}
-        chart: cert-manager
-        repoURL: https://charts.jetstack.io
-        targetRevision: '{{version}}''
-        helm:
-          releaseName: cert-manager
-          values: |
-            installCRDs: true
-        {{- else }}
-        repoURL: https://github.com/rbhadauria/homelab.git
-        targetRevision: HEAD
-        path: kubernetes-on-prem-cluster/apps/platform/{{name}}
-        {{- end }}
-
-      destination:
-        server: 'https://kubernetes.default.svc'
-        namespace: '{{namespace}}'
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - ApplyOutOfSyncOnly=true
+  project: default
+  source:
+    repoURL: https://github.com/rbhadauria/homelab
+    targetRevision: main
+    path: kubernetes-on-prem-cluster/apps
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
