@@ -5,7 +5,7 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
-    argocd.argoproj.io/sync-wave: '2'
+    argocd.argoproj.io/sync-wave: '12'
 spec:
   acme:
     # You must replace this email address with your own.
