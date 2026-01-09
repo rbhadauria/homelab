@@ -22,6 +22,25 @@ echo "Kubernetes cluster setup is complete. You can access your cluster using ku
 echo "Installing ArgoCD..."
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+set -e
+
+echo "Patching argocd-cm ConfigMap to enable Helm support in Kustomize..."
+kubectl patch configmap argocd-cm -n argocd --type merge \
+  -p '{"data":{"kustomize.buildOptions":"--enable-helm"}}'
+
+echo ""
+echo "Restarting argocd-repo-server to apply the changes..."
+kubectl rollout restart deployment argocd-repo-server -n argocd
+
+echo ""
+echo "Waiting for argocd-repo-server to be ready..."
+kubectl rollout status deployment argocd-repo-server -n argocd --timeout=120s
+
+echo ""
+echo "✅ Helm support for Kustomize has been enabled!"
+echo "ArgoCD can now render Helm charts within Kustomize applications."
+
 echo "ArgoCD installation is complete."
 
 

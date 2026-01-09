@@ -5,27 +5,27 @@ metadata:
   namespace: argocd
 spec:
   generators:
-  - git:
-      repoURL: https://github.com/rbhadauria/homelab.git
-      revision: HEAD
-      files:
-      - path: "apps/platform/**/config.json"
+    - git:
+        repoURL: https://github.com/rbhadauria/homelab.git
+        revision: HEAD
+        files:
+          - path: 'kubernetes-on-prem-cluster/apps/platform/**/config.json'
   template:
     metadata:
-      name: "{{name}}"
-      namespace: "argocd"
+      name: '{{name}}'
+      namespace: 'argocd'
       annotations:
-        argocd.argoproj.io/sync-wave: "{{sync_wave}}"
+        argocd.argoproj.io/sync-wave: '{{sync_wave}}'
     spec:
-      project: "default"
+      project: 'default'
       source:
         repoURL: https://github.com/rbhadauria/homelab.git
         targetRevision: HEAD
-        path: "apps/platform/{{name}}" # Path to the Kustomize directory for the component
-        kustomize: {} # Indicates that the source is a Kustomize base
+        path: 'kubernetes-on-prem-cluster/apps/platform/{{name}}' # Path to the Kustomize directory for the component
+        kustomize: {}
       destination:
-        server: "https://kubernetes.default.svc"
-        namespace: "{{namespace}}"
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{namespace}}'
       syncPolicy:
         automated:
           prune: true
