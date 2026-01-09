@@ -14,7 +14,7 @@ chmod 400 id_rsa_vm
 export ANSIBLE_HOST_KEY_CHECKING=False
 ansible-playbook playbook.yaml -i inventory/hosts --private-key id_rsa_vm --become-password-file password_file --become
 
-sed -i '' -e 's#https://127.0.0.1#https://192.168.1.94#' rke2.yaml
+# sed -i '' -e 's#https://127.0.0.1#https://192.168.1.96#' rke2.yaml
 cp rke2.yaml ~/.kube/config
 
 echo "Kubernetes cluster setup is complete. You can access your cluster using kubectl."

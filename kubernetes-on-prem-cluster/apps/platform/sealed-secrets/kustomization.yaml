@@ -1,0 +1,9 @@
+# apps/platform/sealed-secrets/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: sealed-secrets
+    repo: https://bitnami-labs.github.io/sealed-secrets
+    version: '2.18.0' # Use a specific, recent version
+    releaseName: sealed-secrets

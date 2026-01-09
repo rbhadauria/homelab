@@ -4,14 +4,15 @@
 **VM Allocation:**
 
 - **pve-large (12c/32GB):**
-  - `k8s-cp-2`: Control Plane (2 vCPU, 4GB RAM)
-  - `k8s-cp-3`: Control Plane (2 vCPU, 4GB RAM)
-  - `k8s-w-2`: Worker (2 vCPU, 8GB RAM)
-  - `k8s-w-3`: Worker (2 vCPU, 8GB RAM)
-  - `k8s-util`: Utility/Bastion VM (2 vCPU, 4GB RAM) - _For HAProxy & CI/CD services._
-- **pve-small (4c/8GB):**
-  - `k8s-cp-1`: Control Plane (2 vCPU, 4GB RAM)
-  - `k8s-w-1`: Worker (2 vCPU, 4GB RAM)
+  - `k8s-cp-1`: Control Plane (4 vCPU, 6GB RAM)
+  - `k8s-w-1`: Worker (4 vCPU, 12GB RAM)
+  - `k8s-w-2`: Worker (4 vCPU, 12GB RAM)
+- **pve-small (8c/24GB):**
+  - `k8s-cp-2`: Control Plane (4 vCPU, 6GB RAM)
+  - `k8s-cp-3`: Control Plane (4 vCPU, 6GB RAM)
+  - `k8s-w-3`: Worker (4 vCPU, 12GB RAM)
+- **node1 (4c/12GB):**
+  - `k8s-util`: Utility/Bastion VM (2 vCPU, 2GB RAM) - _For HAProxy & CI/CD services._
 
 For deleting all vms in a node in case we need to perform cleanup due to failure in terraform
 

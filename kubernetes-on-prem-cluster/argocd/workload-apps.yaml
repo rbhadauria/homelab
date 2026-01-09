@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: workload-apps
+  namespace: argocd # This Application will live in the argocd namespace
+spec:
+  project: default # Assign to the default project, or a specific one if you have it
+  source:
+    repoURL: https://github.com/rbhadauria/homelab.git # Your Git repository URL
+    targetRevision: HEAD # Or 'main', 'master', or a specific branch/tag
+    path: apps/workloads # This directory contains the definitions of other Argo CD Applications for workload components
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd # Child Application resources will be created in the argocd namespace
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true # Ensure the argocd namespace exists for the child Application definitions

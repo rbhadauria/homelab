@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-appset
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/rbhadauria/homelab.git
+      revision: HEAD
+      files:
+      - path: "apps/platform/**/config.json"
+  template:
+    metadata:
+      name: "{{name}}"
+      namespace: "argocd"
+      annotations:
+        argocd.argoproj.io/sync-wave: "{{sync_wave}}"
+    spec:
+      project: "default"
+      source:
+        repoURL: https://github.com/rbhadauria/homelab.git
+        targetRevision: HEAD
+        path: "apps/platform/{{name}}" # Path to the Kustomize directory for the component
+        kustomize: {} # Indicates that the source is a Kustomize base
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "{{namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=true
