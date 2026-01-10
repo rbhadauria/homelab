@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: rook-ceph
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '20'
 spec:
   sources:
     - repoURL: https://charts.rook.io/release
