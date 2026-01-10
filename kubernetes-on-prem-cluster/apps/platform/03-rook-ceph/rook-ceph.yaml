@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rook-ceph
+  namespace: argocd
+spec:
+  sources:
+    - repoURL: https://charts.rook.io/release
+      chart: rook-ceph
+      targetVersion: 1.18.7
+      helm:
+        releaseName: rook-ceph
+        valueFiles:
+          - rook-ceph-operator-values.yaml
+    - repoURL: https://github.com/rbhadauria/homelab
+      targetRevision: main
+      path: kubernetes-on-prem-cluster/apps/configuration/storage
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: rook-ceph
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
