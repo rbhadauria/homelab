@@ -6,6 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/part-of: 'argocd'
 data:
+  url: 'https://argocd.rlba.in'
   resource.customizations: |
     ceph.rook.io/CephCluster:
       health.lua: |
