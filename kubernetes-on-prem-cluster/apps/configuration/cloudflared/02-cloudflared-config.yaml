@@ -10,7 +10,7 @@ data:
     ingress:
       # Route ArgoCD traffic
       - hostname: argocd.rlba.in
-        service: https://argocd-server.argocd.svc.cluster.local:443
+        service: http://argocd-server.argocd.svc.cluster.local:80
         originRequest:
           noHappyEyeballs: true
           keepAliveConnections: 100
@@ -19,12 +19,7 @@ data:
           tlsTimeout: 10s
           connectTimeout: 10s
           tcpKeepAlive: 30s
-          # Disable TLS verification for self-signed certificates
-          noTLSVerify: true
-          # Enable WebSocket support (required for ArgoCD UI)
-          http2Origin: true
-          # Forward proper headers
-          originServerName: argocd-server.argocd.svc.cluster.local
+          
       
       # Catch-all rule (must be last)
       - service: http_status:404
