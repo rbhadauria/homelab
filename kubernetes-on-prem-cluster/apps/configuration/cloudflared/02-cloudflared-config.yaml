@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: cloudflared
+data:
+  config.yaml: |
+    # Ingress configuration for cloudflared tunnel
+    # When using TUNNEL_TOKEN, cloudflared will use this config for ingress rules
+    ingress:
+      # Route ArgoCD traffic
+      - hostname: argocd.rlba.in
+        service: https://argocd-server.argocd.svc.cluster.local:443
+        originRequest:
+          noHappyEyeballs: true
+          keepAliveConnections: 100
+          keepAliveTimeout: 90s
+          httpHostHeader: argocd.rlba.in
+          tlsTimeout: 10s
+          connectTimeout: 10s
+          tcpKeepAlive: 30s
+          # Disable TLS verification for self-signed certificates
+          noTLSVerify: true
+          # Enable WebSocket support (required for ArgoCD UI)
+          http2Origin: true
+          # Forward proper headers
+          originServerName: argocd-server.argocd.svc.cluster.local
+      
+      # Catch-all rule (must be last)
+      - service: http_status:404
