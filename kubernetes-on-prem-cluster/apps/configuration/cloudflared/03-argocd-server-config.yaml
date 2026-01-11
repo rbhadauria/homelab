@@ -11,7 +11,7 @@ data:
   url: https://argocd.rlba.in
 
   # Enable WebSocket support (required for ArgoCD UI real-time updates)
-  server.insecure: 'true'
+  server.insecure: 'false'
   resource.customizations: |
     ceph.rook.io/CephCluster:
       health.lua: |
