@@ -3,13 +3,15 @@ kind: ConfigMap
 metadata:
   name: argocd-cm
   namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: 'argocd'
 data:
   # Configure ArgoCD to accept requests from cloudflared tunnel
   # Replace with your actual domain
   url: https://argocd.rlba.in
 
   # Enable WebSocket support (required for ArgoCD UI real-time updates)
-  server.insecure: 'false'
+  server.insecure: 'true'
   resource.customizations: |
     ceph.rook.io/CephCluster:
       health.lua: |
