@@ -50,7 +50,7 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true
+      - Replace=true
     automated:
       prune: true
       selfHeal: true
