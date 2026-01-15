@@ -14,6 +14,9 @@ spec:
     helm:
       releaseName: kube-prometheus-stack
       values: |
+        prometheusOperator:
+          admissionWebhooks:
+            enabled: false
         grafana:
           persistence:
             enabled: true
@@ -50,7 +53,8 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
-      - Replace=true
+      - ServerSideApply=true
+
     automated:
       prune: true
       selfHeal: true
