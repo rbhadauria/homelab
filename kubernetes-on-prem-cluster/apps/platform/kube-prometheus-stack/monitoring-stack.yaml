@@ -9,14 +9,11 @@ spec:
   project: default
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
-    targetRevision: 80.14.1
+    targetRevision: 80.13.1
     chart: kube-prometheus-stack
     helm:
       releaseName: kube-prometheus-stack
       values: |
-        prometheusOperator:
-          admissionWebhooks:
-            enabled: false
         grafana:
           persistence:
             enabled: true
