@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "40"
+spec:
+  project: default
+  source:
+    repoURL: https://charts.min.io
+    targetRevision: 5.4.0
+    chart: minio
+    helm:
+      releaseName: minio
+      values: |
+        replicas: 3
+        persistence:
+          enabled: true
+          storageClass: rook-ceph-block
+          size: 100Gi
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 50Gi
+              storageClassName: rook-ceph-block
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: .5
+
+        # Configure MinIO in distributed mode
+        mode: distributed
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: minio
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    automated:
+      prune: true
+      selfHeal: true
